@@ -1,0 +1,204 @@
+---
+title: "Figures for Halobacterium CNV paper"
+author: "Keely Dulmage"
+date: "July 7, 2017"
+output: 
+  html_notebook: default
+---
+
+```{r}
+library(DNAcopy)
+library(foreach)
+library(dplyr)
+
+source("R/CNV_functions.R")
+```
+
+
+
+## Introduction
+
+The following code generates figures for the Halobacterium CNV manuscript.  This code uses the CNV package DNAcopy to analyze both gene expression and ChIP microarrays.
+
+```{r}
+## All gene expression microarrays (numbers are standardized z scores)
+all_data <- read.delim(file = "data/Gene_expression_Master.txt", row.names = 1)
+
+## Empty array to be filled for the generation of segment maps
+rarray <- read.delim(file = "data/rarray_allloci.txt")
+
+```
+
+# Fig 12: GE microarray data analysis
+
+The following commented chunk takes a long time to run.  A preprocessed object can be loaded instead (see below).
+```{r, message = F}
+# CNA.ob <- CNA(all_data[,1:1154], all_data$Chr, all_data$Start,data.type = 'logratio', sampleid = colnames(all_data)[1:1154]) 
+# smoothed <- smooth.CNA(CNA.ob)
+# segsmot <- segment(smoothed, verbose = 0)  ## Set verbose = 1 if number of arrays is not huge
+# save(segsmot, file = "data/segmented_GE_arrays.Rdata")
+```
+```{r}
+load(file = "data/segmented_GE_arrays.Rdata")
+```
+
+### Figure 12A rainbow plots
+
+Generate maps of segments at different fragment size thresholds
+```{r}
+t1f100.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 100)
+t1f1k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 1000)
+t1f5k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 5000)
+t1f10k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 10000)
+t1f20k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 20000)
+t1f50k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 50000)
+t1f100k.copy <- copymap4(ref_array = rarray, seg_array = segsmot$output, threshold = 1, f.size = 100000)
+```
+Split by chromosome
+```{r}
+t1f100.split <- split2(t1f100.copy)
+t1f1k.split <- split2(t1f1k.copy)
+t1f5k.split <- split2(t1f5k.copy)
+t1f10k.split <- split2(t1f10k.copy)
+t1f20k.split <- split2(t1f20k.copy)
+t1f50k.split <- split2(t1f50k.copy)
+t1f100k.split <- split2(t1f100k.copy)
+```
+
+Chromosome by gene expression segment size frequency
+```{r fig.width = 10, fig.height = 5, echo=F}
+plotchr(t1f100.split[[1]],1154,70)
+add_copyplot(t1f1k.split[[1]],1154,'red')
+add_copyplot(t1f5k.split[[1]],1154,'yellow')
+add_copyplot(t1f10k.split[[1]],1154,'green')
+add_copyplot(t1f20k.split[[1]],1154,'blue')
+add_copyplot(t1f50k.split[[1]],1154,'purple')
+add_copyplot(t1f100k.split[[1]],1154,'black')
+legend('topleft', col=c('gray','red','yellow','green','blue','purple','black'), legend=c('100 bp','1 kb','5 kb','10 kb', '20 kb','50 kb','100 kb'), lwd=3, bg='white', cex=1.5)
+```
+pNRC100 by gene expression segment size frequency
+```{r fig.width = 5, fig.height = 5, echo = F}
+plotchr(t1f100.split[[2]],1155,35)
+usr=par('usr')
+rect(17550,usr[3],25376,usr[4],col=rgb(.1,.1,.1,0.1),border=F)
+add_copyplot(t1f1k.split[[2]],1154,'red')
+add_copyplot(t1f5k.split[[2]],1154,'yellow')
+add_copyplot(t1f10k.split[[2]],1154,'green')
+add_copyplot(t1f20k.split[[2]],1154,'blue')
+add_copyplot(t1f50k.split[[2]],1154,'purple')
+add_copyplot(t1f100k.split[[2]],1154,'black')
+legend('topright', col=c('gray','red','yellow','green','blue','purple','black'), legend=c('100 bp','1 kb','5 kb','10 kb', '20 kb','50 kb','100 kb'), lwd=3, bg='white', cex=1.2)
+```
+pNRC200 by gene expression segment size frequency
+```{r fig.width = 8, fig.height = 5, echo = F}
+plotchr(t1f100.split[[3]],1154,25)
+add_copyplot(t1f1k.split[[3]],1154,'red')
+add_copyplot(t1f5k.split[[3]],1154,'yellow')
+add_copyplot(t1f10k.split[[3]],1154,'green')
+add_copyplot(t1f20k.split[[3]],1154,'blue')
+add_copyplot(t1f50k.split[[3]],1154,'purple')
+add_copyplot(t1f100k.split[[3]],1154,'black')
+legend('topright', col=c('gray','red','yellow','green','blue','purple','black'), legend=c('100 bp','1 kb','5 kb','10 kb', '20 kb','50 kb','100 kb'), lwd=3, bg='white', cex=1.2)
+```
+
+### Figure 12B
+
+pNRC100
+```{r fig.width = 5, fig.height = 5, echo = F}
+## regions 20kb or larger, threshold of 1 
+plotplas.GE2(copymap = t1f20k.split[[2]], narrays = 1154, yrange = c(0,10))
+```
+pNRC200
+```{r fig.width = 8, fig.height = 5, echo = F}
+## regions 20kb or larger, threshold of 1 
+plotplas.GE2(copymap = t1f20k.split[[3]], narrays = 1154, yrange = c(0,10))
+```
+# Fig 13: ChIP microarray data analysis
+
+
+Samples were parsed, median-centered, scaled, and segmented in independent batches before combining.  The following code takes segmented chip array data and creates composite maps.  Original data is available upon request.
+```{r}
+## Read in segmented ChIP data 
+test <- read.delim(file = "~/Desktop/CNV manuscript info/all_clone_fragments.txt")
+## Read in Trmb file 12 for example segmentation output
+load(file = "data/trmb12.Rdata")
+```
+
+## Figure 13A
+Example segmentation output, Trmb12
+```{r}
+trmb12.cna <- CNA(genomdat = as.numeric(trmb12.m$Scaled), chrom = trmb12.m$Chr, maploc = as.numeric(trmb12.m$Position), sampleid = "Trmb 12")
+trmb12.smooth <- smooth.CNA(trmb12.cna)
+trmb12.segsmot <- segment(trmb12.smooth)
+```
+```{r fig.width = 12, fig.height = 5, echo = F}
+copyplot.chr(trmb12.segsmot, c(-2,12))
+```
+
+
+## Figure 13B
+Frequency map of all ChIP CNVs, split by depletion/amplification events
+```{r}
+# Generate copymap
+crarray <- read.delim(file = "~/Desktop/CNV manuscript info/rarray_2400_moved_probes.txt")
+crarray <- droplevels(crarray[crarray$Chr == "Chr",])
+
+chip.copy <- copymap4(ref_array = crarray, seg_array = test, threshold = 0.5, f.size = 5000)
+chip.split <- split2(chip.copy)[[1]] %>% dplyr::arrange(Start)
+```
+```{r fig.width = 12, fig.height = 5, echo = F}
+plotchr_chip7(chip.split, 48, c(0,2000000), ish)
+legend('topleft',legend=c('Amplification','Depletion'),col=c('orange','blue'),cex=0.8,bg='white', lty=c(1,1),lwd=2)
+```
+
+
+## Figure 13C
+Frequency map of all ChIP CNVs, with IS elements marked
+
+```{r}
+## read in ISH table
+ish <- read.delim(file = "data/20170703_ISfinder_ISH_elements.txt")
+## read in peaks vector
+peaks <-load("data/Chip_peak_regions.Rdata")
+```
+```{r fig.width = 12, fig.height = 5, echo = F}
+plotchr_chip2(copymap = chip.split, narrays = 48, ymax = 80, ish_table = ish)
+legend('topleft',legend=c('CNV Events','ISH elements'),col=c('black',rgb(0.1,0.1,.8,.3)),cex=1.2,bg='white', lty=c(1,2),lwd=2)
+abline(h = 10, col = "red")
+points(x = sample(peaks7, 1000), y = c(rep(2,1000)), col = "green", pch =16, cex= .5)
+
+```
+
+
+## Figure 13D
+IS elements are associated with CNV regions at higher rate than expected by chance: bootstrapping results
+```{r}
+set.seed(8876)
+ISboot <- function(IS_number, peaks){
+	boot=c()
+	for(i in 1:10000){
+	ISlist= sample(1:2014239,IS_number)	
+ 	boot[i]= length(which(ISlist %in% peaks))
+	}
+	boot
+}
+
+## of IS elements in chr peaks (note: IS table is for chromosome only)
+is.n <- length(ish$Start[ish$Start %in% peaks7])
+
+ish.boot <- ISboot(is.n, peaks7)
+
+```
+```{r fig.width=5, fig.height=4, echo=F}
+hist(ish.boot, col = "gray", xlim = c(0,15), xlab = "Number of IS elements\n in CSV regions", cex.lab=1.2, breaks =10)
+abline( v = 14, lty = 2)
+```
+
+
+
+
+## Appendix
+```{r}
+sessionInfo()
+```
+
