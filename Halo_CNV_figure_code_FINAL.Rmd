@@ -2,7 +2,7 @@
 title: "Halo_CNV_figure_code_FINAL"
 date: "January 19 2018"
 editor_options:
-  chunk_output_type: inline
+  chunk_output_type: console
 output:
   html_notebook: default
   pdf_document: default
@@ -263,7 +263,7 @@ ish.boot <- ISboot(is.n, peaks7)
 
 ```
 ```{r fig.width=5, fig.height=4, echo=F}
-hist(ish.boot, col = "gray", xlim = c(0,15), xlab = "Number of IS elements\n in CNV regions", cex.lab=1.2, breaks =10)
+hist(ish.boot, col = "gray", xlim = c(0,20), xlab = "Number of IS elements\n in CNV regions", cex.lab=1.2, breaks =10)
 abline( v = 16, lty = 2)
 ```
 
