@@ -249,7 +249,7 @@ Fig 5B: IS elements are associated with CNV regions at higher rate than expected
 set.seed(8876)
 ISboot <- function(IS_number, peaks){
 	boot=c()
-	for(i in 1:10000){
+	for(i in 1:1000){
 	ISlist= sample(1:2014239,IS_number)	
  	boot[i]= length(which(ISlist %in% peaks))
 	}
@@ -264,7 +264,7 @@ ish.boot <- ISboot(is.n, peaks7)
 ```
 ```{r fig.width=5, fig.height=4, echo=F}
 hist(ish.boot, col = "gray", xlim = c(0,15), xlab = "Number of IS elements\n in CNV regions", cex.lab=1.2, breaks =10)
-abline( v = 14, lty = 2)
+abline( v = 16, lty = 2)
 ```
 
 
